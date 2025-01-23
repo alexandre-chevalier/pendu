@@ -1,30 +1,38 @@
 import random
-
-## fonction pour inserer un mot dans le fichier texte
+import json
+import pickle
+## function to insert the word in the txt file
 def insert():
-    insertion = input("veuillez entrez le mot que vous voulez ajoutez a la liste :")+"\n"
-    with open('mots.txt', 'a') as fichier:
-        fichier.write(insertion)
+    while True:
+            insertion = input("Enter the word you want to add to the list :")
+            if insertion.isdigit() == True:
+                print("this is not a word but a number please enter a word with letter")
+            else:
+                insertion = insertion+"\n"
+                if len(insertion)>3:
+                    with open('mots.txt', 'a') as file:
+                        file.write(insertion)
+                        break
+                else:
+                    print("please enter a word with length >=3 letter")
+                
 
-## fonction pour choisir un mot aleatoire dans le fichier texte et qui retourne le mot
+## function who choose a random word of the list
 def word_choice():
     with open('mots.txt', 'r') as word:
             tab_words = [i.strip() for i in word]
             return random.choice(tab_words)
             
 
-def lose():
-    print(f"vous avez perdu")
-
-## fonction qui gere le jeu
-def game(scoring,essai,word):
+## function who manage the main task of the game
+def game(tryin,word):
     words = ["_" for i in word]
     wrong_letters = []
     while True:
         print("".join(words))
-        letter = input("veuillez entrez une lettre : ")
-        if essai == 11: 
-            lose()
+        letter = input("enter a letter : ")
+        if tryin == 11:
+            print("vous avez perdue")
             break
         else:
             if letter in word:
@@ -34,38 +42,75 @@ def game(scoring,essai,word):
             if letter not in word:
                 wrong_letters.append(letter)
                 print(wrong_letters)
-                essai+=1
+                tryin += 1
 
             if "".join(words) == word:
-                print("vtc")
-                score(essai, scoring)
+                return tryin
+
+## function who add a score to the user
+def scoring(tryin, score, name):
+        if tryin >= 1 and tryin <=3:
+            score +=100
+        elif tryin >= 4 and tryin <=6:
+            score +=50
+        elif tryin >= 7 and tryin <=10:
+            score +=25
+        else:
+            score = 0
+            
+            
+        
+        insert_score(name, score)
+        return tryin, score
+            
+# function to insert the score into the json file                    
+def insert_score(name, score):
+    data = f"{name} : {score} \n"
+    with open('scores.txt',"a+") as file:
+         file.write(data)
+    """
+    data = {
+                'name' : name,
+                'score':score
+            }
+    array = [{i:data[i]} for i in data]
+    json_str = json.dumps(array)
+
+    with open('score.json','a') as file_json:
+        json.dump(json_str, file_json)
+    """
+#function who show the score history   
+def read_history():
+    with open('scores.txt', 'r') as file:
+         data = file.read()
+         print(data)
+    """
+    with open('score.json','r')as file:
+        data = json.load(file)
+        print(data)
+    """
+
+## function who dislplay a message of victory or losing              
+def victory_message(trying):
+        print(f"you find the word here is your score {trying[1]}")
 
 
+    
 
 
-def score(essai, scoring):
-    if essai >= 0 and essai <=2:
-        scoring +=100  
-    elif essai >= 3 and essai <=6:
-        scoring +=75   
-    elif essai >= 7 and essai <=8:
-        scoring +=50
-    elif essai >= 9 and essai <=10:
-        scoring +=25    
-    elif essai == 11:
-        scoring =0
-    message_victoire(essai, scoring)         
-                    
-def message_victoire(essai, scoring):
-    print(f"vous avez trouver le mot mais vous avez fait {essai} erreurs,  ce qui vous fait un score de {scoring}")
-
+#main function who call the other function
 def main():
     essai = 0
     score = 0
+    name= input("enter your name : ")
     while True:
-        print("""
-              1 : demarrer une nouvelle partie
-              2 : inserer un mot dans la liste
+        
+        print(f"""
+              {name} choose between the next choices
+              1 : new game
+              2 : insert a word in the list
+              3 : show score history
+              4 : exit the game
               """)
         
         choices = int(input(""))
@@ -73,9 +118,15 @@ def main():
         if choices == 1:
             
             choix = word_choice()
-            game(score,essai,choix)
+            gamer =  game(essai,choix)
+            scores = scoring(gamer,score, name)
+            victory_message(scores)
         elif choices == 2:
             insert()
+        elif choices == 3:
+            read_history()
+        elif choices== 4 :
+            break
         
 
         
