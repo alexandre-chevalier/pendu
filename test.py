@@ -47,8 +47,79 @@ def New_Game(screen, wallpaper):
    
 
 
-def insert_words(screen,wallpaper, r, orange, my_font):
-     print("hello")
+def insert_words(screen,wallpaper, r, orange, font, white, r2, letter):
+    main_menu = "main menu"
+    text = "please enter a word"
+    select_index= 0
+    name =""
+    run = True
+    pygame.image.load(os.path.join('image\cyberpunk.jpg')).convert()
+    pygame.Surface.blit(screen, wallpaper, (0,0))
+
+    pygame.draw.rect(screen, orange, r2)
+    font_dis = font.render(main_menu,1, white)
+    font_rect = font_dis.get_rect(center = r2.center)
+    screen.blit(font_dis, font_rect)
+
+    pygame.draw.rect(screen, orange, r)
+    font_dis2 =font.render(text, 1, white)
+    font_rect2= font_dis2.get_rect(midtop = r.midtop)
+    screen.blit(font_dis2, font_rect2)
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    insert(name)
+                    run = False
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                elif event.key == pygame.K_RIGHT:
+                    select_index = (select_index + 1) % len(letter)
+                elif event.key == pygame.K_LEFT:
+                    select_index = (select_index - 1) % len(letter)
+                elif event.key == pygame.K_UP:
+                    name += letter[select_index]
+                    
+        
+        
+        pygame.draw.rect(screen, orange, r, 0)
+        screen.blit(font_dis,font_rect)
+        
+
+        input_text = font.render(name, 1, (255,255,255))
+        screen.blit(input_text, (r.x + 20, r.y +20))
+        for i , char in enumerate(letter):
+            if i == select_index:
+                char_surface = font.render(char,1, (135,206,250))
+            else:
+                char_surface = font.render(char, 1, (255,255,255))
+            screen.blit(char_surface,(100 + i * 30, 500))
+
+        pygame.display.update()
+        
+        pygame.time.Clock().tick(60)
+        
+        
+
+
+    
+
+
+def insert(name):
+    while True:
+            if name.isdigit() == True:
+                print("this is not a word but a number please enter a word with letter")
+            else:
+                name = name+"\n"
+                if len(name)>3:
+                    with open('mots.txt', 'a') as file:
+                        file.write(name)
+                        break
+                else:
+                    print("please enter a word with length >=3 letter")
 
     
 def Show_history(screen, wallpaper, r, orange, font, white, r2, score):
@@ -134,7 +205,7 @@ def main():
         if state_game == New_game:
             New_Game(screen, wallpaper)
         elif state_game == Insert_Word:
-            insert_words(screen, wallpaper)
+            insert_words(screen, wallpaper, r5, orange, my_Font,white, r6, letter)
         elif state_game == Show_History:
             Show_history(screen, wallpaper, r6, orange, my_Font, white, r5, score)
         elif state_game == Exit:
