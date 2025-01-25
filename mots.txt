@@ -23,3 +23,6 @@ char
 fusil
 pistolet
 titavion
+lucas
+baba
+allemagne

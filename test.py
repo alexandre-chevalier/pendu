@@ -15,11 +15,11 @@ def Main_menu(screen, wallpaper,orange,  r1, r2, r3, r4, font, white):
     pygame.Surface.blit(screen, wallpaper, (0,0))
 
     pygame.draw.rect(screen,orange, r1)
-    #je selectionne le rendu de la font avec le texte a ecrire, l'antialiasing et la couleur
+        #je selectionne le rendu de la font avec le texte a ecrire, l'antialiasing et la couleur
     font_dis = font.render(ng, 1,white)
-    #le get_rect me permet de positionner le texte dans le rectangle créer
+        #le get_rect me permet de positionner le texte dans le rectangle créer
     font_rect = font_dis.get_rect(center=r1.center)
-    #je fais passer le render de la font et le positionnement du texte dans le blit
+        #je fais passer le render de la font et le positionnement du texte dans le blit
     screen.blit(font_dis, font_rect)
 
 
@@ -40,19 +40,137 @@ def Main_menu(screen, wallpaper,orange,  r1, r2, r3, r4, font, white):
 
     pygame.display.update()
     
+
+def word_choice():
+    with open('mots.txt', 'r') as word:
+            tab_words = [i.strip() for i in word]
+            return random.choice(tab_words)
+
+
+###function new game who manage the core gameplay of the game
+
+def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, name):
+    text = "please enter a letter"
+    lose= "vous avez perdu, cliquez pour revenir au menu principal"
+
+    select_index= 0
+    words = ["_" for i in word]
     
+    print(words)
+    wrong_letter = []
+    run = True
+    print(name)
+    pygame.image.load(os.path.join('image\cyberpunk.jpg')).convert()
+    pygame.Surface.blit(screen, wallpaper, (0,0)) 
 
-def New_Game(screen, wallpaper):
-    print("hello")
-   
+    while run:
+
+        pygame.draw.rect(screen, orange, r2)
+        font_dis = font.render(text,1, white)
+        font_rect = font_dis.get_rect(center = r2.center)
+        screen.blit(font_dis, font_rect)
+
+        word_fin= " ".join(words)
+        pygame.draw.rect(screen, orange, r)
+        font_dis3 = font.render(word_fin,1, white)
+        font_rect3 = font_dis3.get_rect(center= r.center)
+        screen.blit(font_dis3, font_rect3)
+        
+        if len(wrong_letter) >= 12:
+            pygame.draw.rect(screen, orange, r9)
+            font_dis4 = font.render(lose,1, white)
+            font_rect4 = font_dis4.get_rect(center= r9.center)
+            screen.blit(font_dis4, font_rect4)
+            char_surface = font.render("",1, orange)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return 
+                elif event.type == pygame.MOUSEBUTTONDOWN: 
+                    return  0
 
 
-def insert_words(screen,wallpaper, r, orange, font, white, r2, letter):
+        else:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        select_index = (select_index + 1) % len(letter)
+                    elif event.key == pygame.K_LEFT:
+                        select_index = (select_index - 1) % len(letter)
+                    elif event.key == pygame.K_UP:
+                        if letter[select_index] in word:
+                            for i,char in enumerate(word):
+                                if char == letter[select_index]:
+                                    words[i] = char
+                                    ## case where the user find the word
+                                    if "".join(words) == word:
+                                        score = scoring(len(wrong_letter), name)
+                                        insert_score(name, score)
+                                        win=f"{name} you win with {len(wrong_letter)}try,  your score is {score}"
+                                        font_dis4 = font.render(win,1, white)
+                                        font_rect4 = font_dis4.get_rect(center= r9.center)
+                                        screen.blit(font_dis4, font_rect4)
+                                        char_surface = font.render("",1, (255,140,0))
+
+                        if letter[select_index] not in word:
+                                wrong_letter.append(letter[select_index])
+                                pen = pendu(wrong_letter)
+                                image = pygame.transform.scale(pen, (r3.width, r3.height))
+                                screen.blit(image,r3.topleft )
+                                
+            input_text = font.render(name, 1, (255,255,255))
+            screen.blit(input_text, (r.x + 20, r.y +20))
+            for i , char in enumerate(letter):
+                if i == select_index:
+                    char_surface = font.render(char,1, (135,206,250))
+                else:
+                    char_surface = font.render(char, 1, (255,255,255))
+                screen.blit(char_surface,(100 + i * 30, 500))
+                
+      
+            pygame.display.update()
+        
+        pygame.time.Clock().tick(60)
+    
+def pendu(wrong):
+        w=min(len(wrong), 12)
+        pendus = pygame.image.load(os.path.join('image', f'pendu{w}.jpg'))
+        return pendus
+        
+
+## function who add a score to the user
+def scoring(tryin, name):
+        print(tryin, name)
+        score = 0
+    
+        if tryin >= 1 and tryin <=3:
+            score +=100
+        elif tryin >= 4 and tryin <=6:
+            score +=50
+        elif tryin >= 7 and tryin <=10:
+            score +=25
+        else:
+            score = 0
+        
+        
+        return score
+            
+# function to insert the score into the json file                    
+def insert_score(name, score):
+    data = f"{name} : {score} \n"
+    with open('scores.txt',"a+") as file:
+         file.write(data)         
+
+def insert_words(screen,wallpaper, r2, orange, font, white, r, letter):
     main_menu = "main menu"
     text = "please enter a word"
     select_index= 0
     name =""
     run = True
+    
     pygame.image.load(os.path.join('image\cyberpunk.jpg')).convert()
     pygame.Surface.blit(screen, wallpaper, (0,0))
 
@@ -101,11 +219,51 @@ def insert_words(screen,wallpaper, r, orange, font, white, r2, letter):
         pygame.display.update()
         
         pygame.time.Clock().tick(60)
-        
-        
 
-
+def name(screen,wallpaper, r2, orange, font, white, r, letter):
+    text = "please enter a word"
+    select_index= 0
+    name =""
+    run = True
     
+    pygame.image.load(os.path.join('image\cyberpunk.jpg')).convert()
+    pygame.Surface.blit(screen, wallpaper, (0,0))
+
+    pygame.draw.rect(screen, orange, r)
+    font_dis2 =font.render(text, 1, white)
+    font_rect2= font_dis2.get_rect(midtop = r.midtop)
+    screen.blit(font_dis2, font_rect2)
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return name
+                    
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                elif event.key == pygame.K_RIGHT:
+                    select_index = (select_index + 1) % len(letter)
+                elif event.key == pygame.K_LEFT:
+                    select_index = (select_index - 1) % len(letter)
+                elif event.key == pygame.K_UP:
+                    name += letter[select_index]
+                    
+
+        input_text = font.render(name, 1, (255,255,255))
+        screen.blit(input_text, (r.x + 20, r.y +20))
+        for i , char in enumerate(letter):
+            if i == select_index:
+                char_surface = font.render(char,1, (135,206,250))
+            else:
+                char_surface = font.render(char, 1, (255,255,255))
+            screen.blit(char_surface,(100 + i * 30, 500))
+
+        pygame.display.update()
+        
+        pygame.time.Clock().tick(60)
 
 
 def insert(name):
@@ -154,13 +312,16 @@ def read_history():
          return data
     
 def main():
-    Main_Menu =0
+    Main_Menu = 0
     New_game= 1
     Insert_Word = 2
     Show_History = 3
     Exit = 4
-    state_game = Main_Menu
-    word = word_choice()
+    enter_name = 5
+    state_game = enter_name
+    
+    
+    
     letter = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 
     pygame.init()
@@ -174,52 +335,76 @@ def main():
     r4 = pygame.Rect(450,400,400,75)
     r5 = pygame.Rect(75, 100,850,350)
     r6 = pygame.Rect(375,0,250, 75)
+    r7 = pygame.Rect(75,100,387 ,380)
+    r8 = pygame.Rect(537,100,387 ,380)
+    r9 = pygame.Rect(0,0,1000 ,600)
     orange = [255,140,0]
     white = [255,255,255]
     my_Font = pygame.font.SysFont("comicsansms", 32)
+   
     pygame.display.set_caption("hello")
     score = read_history()
     print(score)
     run = True
-    Main_menu(screen, wallpaper, orange, r1, r2, r3, r4, my_Font, white)
+    ent_name = name(screen,wallpaper, r2, orange, my_Font, white, r1, letter)
+    
     
     while run:
+        word = word_choice()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run= False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    state_game = Main_Menu
+
             ## event de type clic de souris
+            ##condition qui permer de voir que l'on clique bien sur le rectangle
+            #on affecte une nouvelle valeur a state_game
             if event.type == pygame.MOUSEBUTTONDOWN:
-                ##condition qui permer de voir que l'on clique bien sur le rectangle
-                if state_game == Main_Menu and r1.collidepoint(event.pos):
-                    #on affecte une nouvelle valeur a state_game
+                if state_game == Main_Menu and r1.collidepoint(event.pos): 
+                    print(ent_name)  
                     state_game =  New_game
                 elif state_game == Main_Menu and r2.collidepoint(event.pos):
+                    print(state_game)
                     state_game = Insert_Word
                 elif state_game == Main_Menu and r3.collidepoint(event.pos):
+                    print(state_game)
                     state_game = Show_History
                 elif state_game == Main_Menu and r4.collidepoint(event.pos):
+                    print(state_game)
                     state_game = Exit
+                
+                if state_game == Insert_Word and r6.collidepoint(event.pos):
+                    print(state_game)
+                    state_game = Main_Menu
+                
+                if state_game == Show_History and r6.collidepoint(event.pos):
+                    print(state_game)
+                    state_game = Main_Menu
+
+                if state_game == New_game and r9.collidepoint(event.pos):
+                    ret = New_Game(screen, wallpaper, r6, orange, my_Font,white, r7,r8, letter, word, r9, ent_name)
+                    state_game =  ret
+                
+
 
         ## condition qui verifie la valeur de state_game et
         ## appelle la fonction correspondante
         if state_game == New_game:
-            New_Game(screen, wallpaper)
+            New_Game(screen, wallpaper, r6, orange, my_Font,white, r7,r8, letter, word, r9, ent_name)
         elif state_game == Insert_Word:
-            insert_words(screen, wallpaper, r5, orange, my_Font,white, r6, letter)
+            insert_words(screen, wallpaper, r6, orange, my_Font,white, r5, letter)
         elif state_game == Show_History:
             Show_history(screen, wallpaper, r6, orange, my_Font, white, r5, score)
+        elif state_game == Main_Menu:
+             Main_menu(screen, wallpaper, orange, r1, r2, r3, r4, my_Font, white)            
         elif state_game == Exit:
             pygame.quit()
             sys.exit()
-
-
-        
+  
         
     pygame.display.flip()
-        
-
-    
-
 
 main()
 

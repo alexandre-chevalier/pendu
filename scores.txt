@@ -1,2 +1,4 @@
 alex : 50 
 alex : 100 
+abc : 50 
+acb : 25 
