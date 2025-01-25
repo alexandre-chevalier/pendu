@@ -2,3 +2,11 @@ alex : 50
 alex : 100 
 abc : 50 
 acb : 25 
+aoq : 100 
+ale : 25 
+carl : 50 
+ab : 50 
+afeb : 50 
+abc : 25 
+adef : 0 
+abcd : 100 

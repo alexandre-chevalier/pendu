@@ -77,11 +77,10 @@ def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, 
         screen.blit(font_dis3, font_rect3)
         
         if len(wrong_letter) >= 12:
-            pygame.draw.rect(screen, orange, r9)
-            font_dis4 = font.render(lose,1, white)
-            font_rect4 = font_dis4.get_rect(center= r9.center)
+            pygame.draw.rect(screen, orange, r9, border_radius=10)
+            font_dis4 = font.render(lose, 1, white)
+            font_rect4 = font_dis4.get_rect(center=r9.center)
             screen.blit(font_dis4, font_rect4)
-            char_surface = font.render("",1, orange)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -109,12 +108,17 @@ def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, 
                                     if "".join(words) == word:
                                         score = scoring(len(wrong_letter), name)
                                         insert_score(name, score)
-                                        win=f"{name} you win with {len(wrong_letter)}try,  your score is {score}"
+                                        win=f"{name} you win with {len(wrong_letter)}try, your score is {score}"
+                                        pygame.draw.rect(screen, orange, r9, border_radius=10)
                                         font_dis4 = font.render(win,1, white)
                                         font_rect4 = font_dis4.get_rect(center= r9.center)
                                         screen.blit(font_dis4, font_rect4)
                                         char_surface = font.render("",1, (255,140,0))
-
+                                        pygame.draw.rect(screen, orange, r2)
+                                        font_dis = font.render(text,1, orange)
+                                        font_rect = font_dis.get_rect(center = r2.center)
+                                        screen.blit(font_dis, font_rect)
+                                        
                         if letter[select_index] not in word:
                                 wrong_letter.append(letter[select_index])
                                 pen = pendu(wrong_letter)
@@ -131,7 +135,7 @@ def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, 
                 screen.blit(char_surface,(100 + i * 30, 500))
                 
       
-            pygame.display.update()
+        pygame.display.update()
         
         pygame.time.Clock().tick(60)
     
@@ -146,7 +150,7 @@ def scoring(tryin, name):
         print(tryin, name)
         score = 0
     
-        if tryin >= 1 and tryin <=3:
+        if tryin > 0 and tryin <=3:
             score +=100
         elif tryin >= 4 and tryin <=6:
             score +=50
@@ -326,6 +330,10 @@ def main():
 
     pygame.init()
     pygame.font.init()
+    pygame.mixer.init()
+    pygame.mixer.music.load("balatro.mp3")
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.3)
     screen = pygame.display.set_mode((1000,600))
     wallpaper = pygame.image.load(os.path.join('image\cyberpunk.jpg')).convert()
     
