@@ -27,3 +27,4 @@ lucas
 baba
 allemagne
 aerien
+journal

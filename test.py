@@ -39,19 +39,12 @@ def Main_menu(screen, wallpaper,orange,  r1, r2, r3, r4, font, white):
     screen.blit(font_dis4, font_rect4)
 
     pygame.display.update()
-    
-##function who choice the word randomly
-def word_choice():
-    with open('mots.txt', 'r') as word:
-            tab_words = [i.strip() for i in word]
-            return random.choice(tab_words)
-
 
 ###function new game who manage the core gameplay of the game
 
 def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, name):
     text = "please enter a letter"
-    lose= "vous avez perdu, cliquez pour revenir au menu principal"
+    lose= "you lose, click to go to the main menu"
     scores = 0
     select_index= 0
     words = ["_" for i in word]
@@ -90,9 +83,8 @@ def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, 
             font_dis4 = font.render(lose, 1, white)
             font_rect4 = font_dis4.get_rect(center=r9.center)
             screen.blit(font_dis4, font_rect4)
-
         ## condition who manage the victory of the user
-        if "".join(words) == word:
+        elif "".join(words) == word:
             score = scoring(scores, len(wrong_letter))
            
             screen.fill(orange)
@@ -102,6 +94,7 @@ def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, 
             font_dis4 = font.render(win, 1, white)
             font_rect4 = font_dis4.get_rect(center=r9.center)
             screen.blit(font_dis4, font_rect4)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -131,8 +124,6 @@ def New_Game(screen,wallpaper, r2, orange, font, white, r,r3, letter, word, r9, 
                                 image = pygame.transform.scale(pen, (r3.width, r3.height))
                                 screen.blit(image,r3.topleft )
                                 
-            
-      
         pygame.display.update()
         
         pygame.time.Clock().tick(60)
@@ -154,9 +145,7 @@ def scoring(score, tryin):
         elif tryin >= 7 and tryin <=10:
             score +=25
         else:
-            score = 0
-        
-        
+            score = 0 
         return score
             
 # function to insert the score into the txt file                    
@@ -193,7 +182,7 @@ def insert_words(screen,wallpaper, r2, orange, font, white, r, letter):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     insert(name)
-                    run = False
+                    return 0
                 elif event.key == pygame.K_BACKSPACE:
                     name = name[:-1]
                 elif event.key == pygame.K_RIGHT:
@@ -202,9 +191,7 @@ def insert_words(screen,wallpaper, r2, orange, font, white, r, letter):
                     select_index = (select_index - 1) % len(letter)
                 elif event.key == pygame.K_UP:
                     name += letter[select_index]
-                    
-        
-        
+    
         pygame.draw.rect(screen, orange, r, 0)
         screen.blit(font_dis,font_rect)
         
@@ -315,6 +302,9 @@ def read_history():
          data = file.readlines()
          return data
     
+
+## main who manage the variable of the game who serve as parameter for the function
+## and manage the screen transition with a variable state_game and condition
 def main():
     Main_Menu = 0
     New_game= 1
@@ -328,10 +318,12 @@ def main():
 
     pygame.init()
     pygame.font.init()
+    
     pygame.mixer.init()
     pygame.mixer.music.load("balatro.mp3")
     pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.2)
+
     screen = pygame.display.set_mode((1000,600))
     wallpaper = pygame.image.load(os.path.join('image\cyberpunk.jpg')).convert()
     
@@ -364,9 +356,8 @@ def main():
                 if event.key == pygame.K_RETURN:
                     state_game = Main_Menu
 
-            ## event de type clic de souris
-            ##condition qui permer de voir que l'on clique bien sur le rectangle
-            #on affecte une nouvelle valeur a state_game
+            ##condition with event click on the rect
+            #we change the valuer of state_game
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if state_game == Main_Menu and r1.collidepoint(event.pos): 
                     print(ent_name)  
@@ -382,8 +373,8 @@ def main():
                     state_game = Exit
                 
                 if state_game == Insert_Word and r6.collidepoint(event.pos):
-                    print(state_game)
-                    state_game = Main_Menu
+                    ret = insert_words(screen, wallpaper, r6, orange, my_Font,white, r5, letter)
+                    state_game = ret
                 
                 if state_game == Show_History and r6.collidepoint(event.pos):
                     print(state_game)
